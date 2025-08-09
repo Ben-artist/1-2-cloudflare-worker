@@ -4,7 +4,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
-
+const DEEPSEEK_API_KEY = "sk-3e407cd7b7e2428285ce5e28973d6073";
 /**
  * Handle POST to DeepSeek chat completions.
  * Body shape:
@@ -39,18 +39,11 @@ async function onRequestPost({ request, env }) {
       ...userMessages.map(m => ({ role: m.role, content: m.content })),
     ];
 
-    if (!env || !env.DEEPSEEK_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "Missing env.DEEPSEEK_API_KEY" }),
-        { status: 500, headers: { "content-type": "application/json", ...CORS_HEADERS } }
-      );
-    }
-
     const upstreamResp = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.DEEPSEEK_API_KEY}`,
+        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({ model, messages: finalMessages, stream }),
     });
