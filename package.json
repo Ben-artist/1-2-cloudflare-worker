@@ -1,0 +1,19 @@
+{
+	"name": "cloudflare-workers-openapi",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"cf-typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"wrangler": "^4.28.1"
+	},
+	"description": "一个最小可运行的 Cloudflare Worker 示例，入口为 `index.js`，导出 `fetch` 处理函数，返回 “Hello World!”.",
+	"main": "index.js",
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}
