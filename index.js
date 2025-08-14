@@ -93,6 +93,18 @@ export default {
         return new Response(null, { status: 200, headers: CORS_HEADERS });
       }
 
+      // 检查环境变量
+      if (!env.DEEPSEEK_API_KEY) {
+        console.error("缺少 DEEPSEEK_API_KEY 环境变量");
+        return new Response(JSON.stringify({
+          error: "配置错误",
+          message: "缺少必要的环境变量配置"
+        }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...CORS_HEADERS }
+        });
+      }
+
       // 直接使用 Yoga 处理所有请求
       const response = await yoga.fetch(request, { env });
 
@@ -107,6 +119,7 @@ export default {
         headers: responseHeaders
       });
     } catch (error) {
+      console.error("请求处理失败:", error);
       return new Response(JSON.stringify({
         error: "服务器错误",
         message: error.message
