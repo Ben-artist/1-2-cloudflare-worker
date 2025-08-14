@@ -1,5 +1,4 @@
-import { createYoga } from 'graphql-yoga';
-import { createSchema } from 'graphql-yoga';
+import { createYoga, createSchema } from 'graphql-yoga';
 
 // GraphQL Schema 定义
 const typeDefs = `#graphql
@@ -8,19 +7,7 @@ const typeDefs = `#graphql
   }
 
   type Mutation {
-    chat(input: ChatInput!): ChatResponse!
-  }
-
-  input ChatInput {
-    message: String!
-  }
-
-  type ChatResponse {
-    message: String!
-  }
-
-  type Subscription {
-    chatStream(input: ChatInput!): ChatResponse!
+    chat(message: String!): String!
   }
 `;
 
@@ -32,10 +19,10 @@ const resolvers = {
 
   Mutation: {
     // 普通聊天（非流式）
-    chat: async (_, { input }, { env }) => {
+    chat: async (_, { message }, { env }) => {
       try {
         // 验证输入
-        if (!input.message?.trim()) {
+        if (!message?.trim()) {
           throw new Error("消息内容不能为空");
         }
 
@@ -43,7 +30,7 @@ const resolvers = {
         const apiKey = env.DEEPSEEK_API_KEY;
         const messages = [
           { role: "system", content: "你是一个有用的AI助手" },
-          { role: "user", content: input.message }
+          { role: "user", content: message }
         ];
 
         const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
@@ -51,7 +38,7 @@ const resolvers = {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${apiKey}`,
-            "Accept": "application/json" // 添加 Accept 头
+            "Accept": "application/json"
           },
           body: JSON.stringify({
             model: "deepseek-chat",
@@ -68,9 +55,7 @@ const resolvers = {
         }
 
         const data = await response.json();
-        return {
-          message: data.choices[0]?.message?.content || "抱歉，没有收到有效回复"
-        };
+        return data.choices[0]?.message?.content || "抱歉，没有收到有效回复";
       } catch (error) {
         console.error("聊天处理失败:", error);
         throw new Error(`聊天失败: ${error.message}`);
@@ -89,14 +74,14 @@ const schema = createSchema({
 const yoga = createYoga({
   schema,
   cors: false,
-  graphqlEndpoint: "/", // 根路径作为 GraphQL 端点
+  graphqlEndpoint: "/",
 });
 
-// CORS 头部 (更新以包含 Accept)
+// CORS 头部
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept" // 添加 Accept
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept"
 };
 
 // 主请求处理函数
@@ -121,7 +106,6 @@ export default {
         status: response.status,
         headers: responseHeaders
       });
-
     } catch (error) {
       return new Response(JSON.stringify({
         error: "服务器错误",
