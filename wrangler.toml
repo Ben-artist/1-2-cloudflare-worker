@@ -1,0 +1,6 @@
+name = "deepseek-graphql"
+main = "index.js"
+compatibility_date = "2025-08-14"
+[env.development]
+workers_dev = true  # 启用本地开发
+# 确保 WebSocket 支持（Workers 默认支持，无需额外配置）
